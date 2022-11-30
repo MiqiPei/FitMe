@@ -1,6 +1,8 @@
 package com.fitme.community.service;
 
+import com.fitme.community.dao.LoginTicketMapper;
 import com.fitme.community.dao.UserMapper;
+import com.fitme.community.entity.LoginTicket;
 import com.fitme.community.entity.User;
 import com.fitme.community.util.CommunityConstant;
 import com.fitme.community.util.CommunityUtil;
@@ -27,6 +29,9 @@ public class UserService implements CommunityConstant {
 
     @Autowired
     private TemplateEngine templateEngine;
+
+    @Autowired
+    private LoginTicketMapper loginTicketMapper;
 
     @Value("${community.path.domain}")
     private String domain;
@@ -104,4 +109,56 @@ public class UserService implements CommunityConstant {
         }
 
     }
+
+    public Map<String, Object> login(String username, String password, int expiredSeconds) {
+        Map<String, Object> map = new HashMap<>();
+
+        // empty
+        if (StringUtils.isBlank(username)) {
+            map.put("usernameMsg", "Account cannot be empty!");
+            return map;
+        }
+        if (StringUtils.isBlank(password)) {
+            map.put("passwordMsg", "Password cannot be empty");
+            return map;
+        }
+
+        // verify account
+        User user = userMapper.selectByName(username);
+        if (user == null) {
+            map.put("usernameMsg", "Account does not exist!");
+            return map;
+        }
+
+        // verify status
+        if (user.getStatus() == 0) {
+            map.put("usernameMsg", "Account has not been activated!");
+            return map;
+        }
+
+        // verify password
+        password = CommunityUtil.md5(password + user.getSalt());
+        if (!user.getPassword().equals(password)) {
+            map.put("passwordMsg", "Password incorrect!");
+            return map;
+        }
+
+        // Generate LoginTicket
+        LoginTicket loginTicket = new LoginTicket();
+        loginTicket.setUserId(user.getId());
+        loginTicket.setTicket(CommunityUtil.generateUUID());
+        loginTicket.setStatus(0);
+        loginTicket.setExpired(new Date(System.currentTimeMillis() + expiredSeconds * 1000));
+        loginTicketMapper.insertLoginTicket(loginTicket);
+
+        map.put("ticket", loginTicket.getTicket());
+        return map;
+    }
+
+    public void logout(String ticket) {
+        loginTicketMapper.updateStatus(ticket, 1);
+    }
+
 }
+
+

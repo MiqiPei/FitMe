@@ -2,8 +2,10 @@ package com.fitme.community;
 
 
 import com.fitme.community.dao.DiscussPostMapper;
+import com.fitme.community.dao.LoginTicketMapper;
 import com.fitme.community.dao.UserMapper;
 import com.fitme.community.entity.DiscussPost;
+import com.fitme.community.entity.LoginTicket;
 import com.fitme.community.entity.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,9 @@ public class MapperTests {
 
     @Autowired
     private DiscussPostMapper discussPostMapper;
+
+    @Autowired
+    private LoginTicketMapper loginTicketMapper;
 
     @Test
     public void testInsertUser(){
@@ -70,5 +75,25 @@ public class MapperTests {
 
         int rows = discussPostMapper.selectDiscussPostRows(149);
         System.out.println(rows);
+    }
+
+    @Test
+    public void testInsertLoginTicket() {
+        LoginTicket loginTicket = new LoginTicket();
+        loginTicket.setUserId(105);
+        loginTicket.setTicket("sss");
+        loginTicket.setStatus(0);
+        loginTicket.setExpired(new Date(System.currentTimeMillis() + 1000 * 60 * 10));
+
+        loginTicketMapper.insertLoginTicket(loginTicket);
+    }
+    @Test
+    public void testSelectLoginTicket() {
+        LoginTicket loginTicket = loginTicketMapper.selectByTicket("sss");
+        System.out.println(loginTicket);
+
+        loginTicketMapper.updateStatus("sss", 1);
+        loginTicket = loginTicketMapper.selectByTicket("sss");
+        System.out.println(loginTicket);
     }
 }
