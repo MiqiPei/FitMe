@@ -70,9 +70,9 @@
 							<a class="nav-link" href="#">Hot</a>
 						</li>
 					</ul>
-					<button type="button" class="btn btn-primary btn-sm position-absolute rt-0" data-toggle="modal" data-target="#publishModal">New Post</button>
+					<button type="button" class="btn btn-primary btn-sm position-absolute rt-0" data-toggle="modal" data-target="#publishModal" th:if="${loginUser!=null}">New Post</button>
 				</div>
-				<!-- 弹出框 -->
+				<!-- Popup -->
 				<div class="modal fade" id="publishModal" tabindex="-1" role="dialog" aria-labelledby="publishModalLabel" aria-hidden="true">
 					<div class="modal-dialog modal-lg" role="document">
 						<div class="modal-content">
@@ -115,7 +115,7 @@
 					</div>
 				</div>
 
-				<!-- 帖子列表 -->
+				<!-- discussion post list -->
 				<ul class="list-unstyled">
 					<li class="media pb-3 pt-3 mb-3 border-bottom" th:each="map:${discussPosts}">
 						<a href="site/profile.html">
@@ -123,7 +123,7 @@
 						</a>
 						<div class="media-body">
 							<h6 class="mt-0 mb-3">
-								<a href="#" th:utext="${map.post.title}">example post tittle</a>
+								<a th:href="@{|/discuss/detail/${map.post.id}|}" th:utext="${map.post.title}">example post tittle</a>
 								<span class="badge badge-secondary bg-primary" th:if="${map.post.type==1}">Sticky On Top</span>
 								<span class="badge badge-secondary bg-danger" th:if="${map.post.status==1}">Recommended</span>
 							</h6>
@@ -132,14 +132,14 @@
 								<ul class="d-inline float-right">
 									<li class="d-inline ml-2">like 11</li>
 									<li class="d-inline ml-2">|</li>
-									<li class="d-inline ml-2">reply 7</li>
+									<li class="d-inline ml-2">replies <span th:text="${map.post.commentCount}">7</span></li>
 								</ul>
 							</div>
 						</div>
 					</li>
 				</ul>
 				<!-- Pages -->
-				<nav class="mt-5" th:if="${page.rows>0}">
+				<nav class="mt-5" th:if="${page.rows>0}" th:fragment="pagination">
 					<ul class="pagination justify-content-center">
 						<li class="page-item">
 							<a class="page-link" th:href="@{${page.path}(current=1)}">First Page</a>
