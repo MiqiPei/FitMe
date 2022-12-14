@@ -4,6 +4,7 @@ import com.fitme.community.dao.MessageMapper;
 import com.fitme.community.entity.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.HtmlUtils;
 
 import java.util.List;
 
@@ -31,5 +32,14 @@ public class MessageService {
 
     public int findLetterUnreadCount(int userId, String conversationId) {
         return messageMapper.selectLetterUnreadCount(userId, conversationId);
+    }
+
+    public int addMessage(Message message) {
+        message.setContent(HtmlUtils.htmlEscape(message.getContent()));
+        return messageMapper.insertMessage(message);
+    }
+
+    public int readMessage(List<Integer> ids) {
+        return messageMapper.updateStatus(ids, 1);
     }
 }
